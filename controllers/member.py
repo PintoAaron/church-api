@@ -2,6 +2,7 @@ import os
 from datetime import date
 from typing import List
 
+import pandas as pd
 from fastapi import (APIRouter, Depends, Form, HTTPException, Security,
                      UploadFile, status)
 from fastapi.responses import FileResponse
@@ -12,7 +13,7 @@ from core import NotFound, get_db_session
 from models import MemberMapper
 from schemas import MemberSchemaIn, MemberSchemaOut, MemberSchemaUpdate
 from services import IsAuthenticated
-from utils import save_file
+from utils import save_file, validate_excel_file
 
 member_router = APIRouter(
     prefix="/api/members",
@@ -116,3 +117,15 @@ async def read_image(filename: str):
 async def delete(id: int, session: Session = Depends(get_db_session)):
     NotFound(session, {MemberMapper: [id]}).__call__()
     return MemberMapper.delete(session, id)
+
+
+@member_router.post("/file/upload", dependencies=[Security(IsAuthenticated())])
+async def upload_file(file: UploadFile, department_id: int, session: Session = Depends(get_db_session)):
+    val_file = validate_excel_file(file.filename)
+    if val_file is False:
+        raise HTTPException(status_code=404, detail="Only excel files are allowed")
+    df = pd.read_excel(file.file)
+    data = df.to_dict(orient='records')
+    for member in data:
+        member.update({"department_id": department_id})
+    return MemberMapper.create_from_file(session=session, data=data)

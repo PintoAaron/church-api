@@ -2,7 +2,7 @@ from datetime import date, datetime
 from typing import Optional
 
 from pydantic import EmailStr
-from sqlalchemy import ForeignKey, UniqueConstraint
+from sqlalchemy import ForeignKey, UniqueConstraint,insert
 from sqlalchemy.orm import Mapped, Session, mapped_column, relationship
 
 from models import Base
@@ -36,3 +36,9 @@ class MemberMapper(Base):
     def validate_by_email(cls, email: EmailStr, db: Session):
         user = cls.get_by_email(email, db)
         return True if user else False
+
+    @classmethod
+    def create_from_file(cls, session: Session, data: list):
+        members = session.execute(insert(cls), data).all()
+        session.commit()
+        return members
