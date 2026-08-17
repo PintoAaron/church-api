@@ -9,6 +9,8 @@ class EnvConfig(BaseSettings):
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str
     POSTGRES_DB: str
+    POSTGRES_HOST: str
+    POSTGRES_PORT: int
     AUTH_SECRETE_KEY: str
     AUTH_ALGORITHM: str
     MAIL_USERNAME: str
