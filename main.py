@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from controllers import (attendance_router, auth_router, contribution_router,
                          department_router, member_router, offering_type_router,
                          user_router)
-from core import set_default_data
+from core import envConfig, set_default_data
 
 
 @asynccontextmanager
@@ -25,10 +25,12 @@ app.include_router(contribution_router)
 app.include_router(department_router)
 app.include_router(offering_type_router)
 
+allowed_origins = [origin.strip() for origin in envConfig.CORS_ALLOW_ORIGINS.split(",") if origin.strip()]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
+    allow_origins=allowed_origins,
+    allow_credentials="*" not in allowed_origins,
     allow_methods=["*"],
     allow_headers=["*"],
 )

@@ -29,6 +29,7 @@ class EnvConfig(BaseSettings):
     ADMIN_DEFAULT_EMAIL: EmailStr
     ADMIN_DEFAULT_PASSWORD: str
     ADMIN_DEFAULT_ROLE: str
+    CORS_ALLOW_ORIGINS: str = "http://localhost:3000,http://localhost:5173"
 
 
 envConfig = EnvConfig()
