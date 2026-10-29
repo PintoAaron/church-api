@@ -30,6 +30,10 @@ class EnvConfig(BaseSettings):
     ADMIN_DEFAULT_PASSWORD: str
     ADMIN_DEFAULT_ROLE: str
     CORS_ALLOW_ORIGINS: str = "http://localhost:3000,http://localhost:5173"
-
+    
+    #IMAGE STORAGE
+    CLOUDINARY_CLOUD_NAME: str
+    CLOUDINARY_API_KEY: str
+    CLOUDINARY_API_SECRET: str
 
 envConfig = EnvConfig()

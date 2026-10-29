@@ -13,7 +13,8 @@ from core import NotFound, get_db_session
 from models import MemberMapper
 from schemas import MemberSchemaIn, MemberSchemaOut, MemberSchemaUpdate
 from services import IsAuthenticated
-from utils import save_file, validate_excel_file
+from utils import validate_excel_file
+from utils.uploader import upload_image_to_storage_bucket_and_produce_url
 
 member_router = APIRouter(
     prefix="/api/members",
@@ -48,7 +49,16 @@ async def post(
         department_id: int = Form(None),
         session: Session = Depends(get_db_session)
 ):
-    filename = save_file(picture)
+    image_data = []
+    if picture:
+        content = picture.file.read()
+        image_data.append({
+            "filename": picture.filename,
+            "content_type": picture.content_type,
+            "content": content
+        })
+    filename = upload_image_to_storage_bucket_and_produce_url(image_data[0]) if picture else None
+    
     member_data = MemberSchemaIn(
         picture=filename,
         fullname=fullname,
@@ -84,7 +94,15 @@ async def update(
         session: Session = Depends(get_db_session)
 ):
     NotFound(session, {MemberMapper: [id]}).__call__()
-    filename = save_file(picture)
+    image_data = []
+    if picture:
+        content = picture.file.read()
+        image_data.append({
+            "filename": picture.filename,
+            "content_type": picture.content_type,
+            "content": content
+        })
+    filename = upload_image_to_storage_bucket_and_produce_url(image_data[0]) if picture else None
     member_data = MemberSchemaUpdate(
         id=id,
         picture=filename,
